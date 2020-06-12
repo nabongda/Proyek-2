@@ -1,0 +1,281 @@
+    public function noOrder(Request $request)
+    {
+        $id_users = Auth::user()->id;
+        $detail_pesanan = Detail_Pesanan::where('id',$id_users)->first();
+        $detail_pesanan =json_decode(json_encode($detail_pesanan));
+        $detail_user = User::where('id',$id_users)->first();
+        $detail_shipping = AlamatDelivery::where('id_users',$id_users)->first();
+        $detail_shipping =json_decode(json_encode($detail_shipping));
+        $session_id = DB::table('riwayat_keranjang')->select('session_id')->where(['id_users'=>$id_users])->get();
+
+        $userCart = DB::table('riwayat_keranjang')->where(['id_users'=>$id_users], ['session_id'=>$session_id])->get();
+
+        foreach($userCart as $key =>$product){
+            $nama_produk = Produk::where('id_produk',$product->id_produk)->first();
+            $userCart[$key]->nama_produk = $nama_produk->nama_produk;
+        }
+    
+        foreach($userCart as $key =>$product){
+            $harga = Produk::where('id_produk',$product->id_produk)->first();
+            $userCart[$key]->harga = $harga->harga;
+        }
+
+        return view('content.ps')->with(compact('detail_user', 'detail_shipping', 'detail_pesanan', 'userCart'));
+    }
+
+    public function belumbayar()
+    {
+        $id_users = Auth::user()->id;
+        $detail_pesanan = Detail_Pesanan::where('id',$id_users)->first();
+        $detail_pesanan =json_decode(json_encode($detail_pesanan));
+        $detail_user = User::where('id',$id_users)->first();
+        $detail_shipping = AlamatDelivery::where('id_users',$id_users)->first();
+        $detail_shipping =json_decode(json_encode($detail_shipping));
+        $session_id = DB::table('riwayat_keranjang')->select('session_id')->where(['id_users'=>$id_users])->get();
+
+        $userCart = DB::table('riwayat_keranjang')->where(['id_users'=>$id_users], ['session_id'=>$session_id])->get();
+
+        foreach($userCart as $key =>$product){
+            $nama_produk = Produk::where('id_produk',$product->id_produk)->first();
+            $userCart[$key]->nama_produk = $nama_produk->nama_produk;
+        }
+    
+        foreach($userCart as $key =>$product){
+            $harga = Produk::where('id_produk',$product->id_produk)->first();
+            $userCart[$key]->harga = $harga->harga;
+        }
+
+        //return redirect()->action('PesananController@orderReview');
+        return view('content.status_bb', compact('detail_user', 'detail_shipping', 'detail_pesanan', 'userCart'));
+        //return redirect(route('pesanan_saya'));
+    }
+
+    public function menunggukonfirmasi()
+    {
+        $id_users = Auth::user()->id;
+        $detail_pesanan = Detail_Pesanan::where('id',$id_users)->first();
+        $detail_pesanan =json_decode(json_encode($detail_pesanan));
+        $detail_user = User::where('id',$id_users)->first();
+        $detail_shipping = AlamatDelivery::where('id_users',$id_users)->first();
+        $detail_shipping =json_decode(json_encode($detail_shipping));
+        $session_id = DB::table('riwayat_keranjang')->select('session_id')->where(['id_users'=>$id_users])->get();
+
+        $userCart = DB::table('riwayat_keranjang')->where(['id_users'=>$id_users], ['session_id'=>$session_id])->get();
+
+        foreach($userCart as $key =>$product){
+            $nama_produk = Produk::where('id_produk',$product->id_produk)->first();
+            $userCart[$key]->nama_produk = $nama_produk->nama_produk;
+        }
+    
+        foreach($userCart as $key =>$product){
+            $harga = Produk::where('id_produk',$product->id_produk)->first();
+            $userCart[$key]->harga = $harga->harga;
+        }
+
+        $status="Menunggu Konfirmasi";
+        Detail_Pesanan::where(['id'=>$id_users])->update(['status'=>$status]);
+
+        //return redirect()->action('PesananController@orderReview');
+        return view('content.status_mk', compact('detail_user', 'detail_shipping', 'detail_pesanan', 'userCart'));
+        //return redirect(route('pesanan_saya'));
+    }
+
+    // public function batalkanPesanan()
+    // {
+    //     $id_users = Auth::user()->id;
+    //     $detail_pesanan = Detail_Pesanan::where('id',$id_users)->first();
+    //     $detail_pesanan =json_decode(json_encode($detail_pesanan));
+    //     $detail_user = User::where('id',$id_users)->first();
+    //     $detail_shipping = AlamatDelivery::where('id_users',$id_users)->first();
+    //     $detail_shipping =json_decode(json_encode($detail_shipping));
+    //     $session_id = DB::table('riwayat_keranjang')->select('session_id')->where(['id_users'=>$id_users])->get();
+
+    //     $userCart = DB::table('riwayat_keranjang')->where(['id_users'=>$id_users], ['session_id'=>$session_id])->get();
+
+    //     foreach($userCart as $key =>$product){
+    //         $nama_produk = Produk::where('id_produk',$product->id_produk)->first();
+    //         $userCart[$key]->nama_produk = $nama_produk->nama_produk;
+    //     }
+    
+    //     foreach($userCart as $key =>$product){
+    //         $harga = Produk::where('id_produk',$product->id_produk)->first();
+    //         $userCart[$key]->harga = $harga->harga;
+    //     }
+
+    //     $stokproduk = Produk::where('id_produk', $detail_pesanan->id_produk)->first();
+    //     $stokbaru = $stokproduk->stok + $detail_pesanan->qty;
+    //     Produk::where('id_produk', $detail_pesanan->id_produk)->update(['stok'=>$stokbaru]);
+
+    //     $status="Pesanan Dibatalkan";
+    //     Detail_Pesanan::where(['id'=>$id_users])->update(['status'=>$status]);
+
+    //     //return redirect()->action('PesananController@orderReview');
+    //     return view('content.status_bp', compact('detail_user', 'detail_shipping', 'detail_pesanan', 'userCart'));
+    //     //return redirect(route('pesanan_saya'));
+    // }
+
+    public function batalkanPesanan(Request $request)
+    {
+        
+        //$time = Carbon::now();
+        $id_users = Auth::user()->id;
+        $user_email = Auth::user()->email;
+        $detail_pesanan = Detail_Pesanan::where('id',$id_users)->first();
+        $detail_pesanan =json_decode(json_encode($detail_pesanan));
+        date_default_timezone_set('Asia/Jakarta');
+        $time = Carbon::createFromFormat('Y-m-d H:i:s', $detail_pesanan->date_time);
+        $coba = $time->diffInDays($time->copy()->addDay());
+        $waktu = Carbon::parse($time)->subDays(0)->diffForHumans();
+
+        //dd($waktu);
+        $test = explode(" ",$waktu);
+        if($test[0]>="1"&&$test[1]=="hari"){
+            //DB::table('detail_pesanan')->where('id_pesanan',$detail_pesanan->id_pesanan)->delete();
+            return redirect(route('pesanan_saya'));
+        } else{
+            
+            $detail_user = User::where('id',$id_users)->first();
+            $detail_shipping = AlamatDelivery::where('id_users',$id_users)->first();
+            $detail_shipping =json_decode(json_encode($detail_shipping));
+            $session_id = DB::table('riwayat_keranjang')->select('session_id')->where(['id_users'=>$id_users])->get();
+
+            $userCart = DB::table('riwayat_keranjang')->where(['id_users'=>$id_users], ['session_id'=>$session_id])->get();
+
+            foreach($userCart as $key =>$product){
+                $nama_produk = Produk::where('id_produk',$product->id_produk)->first();
+                $userCart[$key]->nama_produk = $nama_produk->nama_produk;
+            }
+    
+            foreach($userCart as $key =>$product){
+                $harga = Produk::where('id_produk',$product->id_produk)->first();
+                $userCart[$key]->harga = $harga->harga;
+            }
+
+            $stokproduk = Produk::where('id_produk', $detail_pesanan->id_produk)->first();
+            $stokbaru = $stokproduk->stok + $detail_pesanan->qty;
+            Produk::where('id_produk', $detail_pesanan->id_produk)->update(['stok'=>$stokbaru]);
+
+            $status="Pesanan Dibatalkan";
+            Detail_Pesanan::where(['id'=>$id_users])->update(['status'=>$status]);
+
+            return view('content.status_bp')->with(compact('detail_user', 'detail_shipping', 'detail_pesanan', 'userCart'));
+        }
+    }
+
+    public function pesanandikemas()
+    {
+        $id_users = Auth::user()->id;
+        $detail_pesanan = Detail_Pesanan::where('id',$id_users)->first();
+        $detail_pesanan =json_decode(json_encode($detail_pesanan));
+        $detail_user = User::where('id',$id_users)->first();
+        $detail_shipping = AlamatDelivery::where('id_users',$id_users)->first();
+        $detail_shipping =json_decode(json_encode($detail_shipping));
+        $session_id = DB::table('riwayat_keranjang')->select('session_id')->where(['id_users'=>$id_users])->get();
+
+        $userCart = DB::table('riwayat_keranjang')->where(['id_users'=>$id_users], ['session_id'=>$session_id])->get();
+
+        foreach($userCart as $key =>$product){
+            $nama_produk = Produk::where('id_produk',$product->id_produk)->first();
+            $userCart[$key]->nama_produk = $nama_produk->nama_produk;
+        }
+    
+        foreach($userCart as $key =>$product){
+            $harga = Produk::where('id_produk',$product->id_produk)->first();
+            $userCart[$key]->harga = $harga->harga;
+        }
+
+        $status="Pesanan Dikemas";
+        Detail_Pesanan::where(['id'=>$id_users])->update(['status'=>$status]);
+
+        //return redirect()->action('PesananController@orderReview');
+        return view('content.status_kms', compact('detail_user', 'detail_shipping', 'detail_pesanan', 'userCart'));
+        //return redirect(route('pesanan_saya'));
+    }
+
+    public function pesanandikirim()
+    {
+        $id_users = Auth::user()->id;
+        $detail_pesanan = Detail_Pesanan::where('id',$id_users)->first();
+        $detail_pesanan =json_decode(json_encode($detail_pesanan));
+        $detail_user = User::where('id',$id_users)->first();
+        $detail_shipping = AlamatDelivery::where('id_users',$id_users)->first();
+        $detail_shipping =json_decode(json_encode($detail_shipping));
+        $session_id = DB::table('riwayat_keranjang')->select('session_id')->where(['id_users'=>$id_users])->get();
+
+        $userCart = DB::table('riwayat_keranjang')->where(['id_users'=>$id_users], ['session_id'=>$session_id])->get();
+
+        foreach($userCart as $key =>$product){
+            $nama_produk = Produk::where('id_produk',$product->id_produk)->first();
+            $userCart[$key]->nama_produk = $nama_produk->nama_produk;
+        }
+    
+        foreach($userCart as $key =>$product){
+            $harga = Produk::where('id_produk',$product->id_produk)->first();
+            $userCart[$key]->harga = $harga->harga;
+        }
+
+        $status="Pesanan Dikirim";
+        Detail_Pesanan::where(['id'=>$id_users])->update(['status'=>$status]);
+
+        //return redirect()->action('PesananController@orderReview');
+        return view('content.status_krm', compact('detail_user', 'detail_shipping', 'detail_pesanan', 'userCart'));
+        //return redirect(route('pesanan_saya'));
+    }
+
+    public function pesananditerima()
+    {
+        $id_users = Auth::user()->id;
+        $detail_pesanan = Detail_Pesanan::where('id',$id_users)->first();
+        $detail_pesanan =json_decode(json_encode($detail_pesanan));
+        $detail_user = User::where('id',$id_users)->first();
+        $detail_shipping = AlamatDelivery::where('id_users',$id_users)->first();
+        $detail_shipping =json_decode(json_encode($detail_shipping));
+        $session_id = DB::table('riwayat_keranjang')->select('session_id')->where(['id_users'=>$id_users])->get();
+
+        $userCart = DB::table('riwayat_keranjang')->where(['id_users'=>$id_users], ['session_id'=>$session_id])->get();
+
+        foreach($userCart as $key =>$product){
+            $nama_produk = Produk::where('id_produk',$product->id_produk)->first();
+            $userCart[$key]->nama_produk = $nama_produk->nama_produk;
+        }
+    
+        foreach($userCart as $key =>$product){
+            $harga = Produk::where('id_produk',$product->id_produk)->first();
+            $userCart[$key]->harga = $harga->harga;
+        }
+
+        $status="Pesanan Diterima";
+        Detail_Pesanan::where(['id'=>$id_users])->update(['status'=>$status]);
+
+        //return redirect()->action('PesananController@orderReview');
+        return view('content.status_trm', compact('detail_user', 'detail_shipping', 'detail_pesanan', 'userCart'));
+        //return redirect(route('pesanan_saya'));
+    }
+
+    public function pesananditerim()
+    {
+        $id_users = Auth::user()->id;
+        $detail_pesanan = Detail_Pesanan::where('id',$id_users)->first();
+        $detail_pesanan =json_decode(json_encode($detail_pesanan));
+
+        // $lama = 1;
+        // $hapus1 = DB::table('detail_pesanan')->where(['id'=>$id_users], [DATEDIFF(CURDATE(), 'date_time') > $lama])->delete();
+        // $hapus2 = DB::table('transaksi')->where(['id_pesanan'=>$hapus1->id_pesanan], [DATEDIFF(CURDATE(), 'date_time') > $lama])->delete();
+        // $hapus3 = DB::table('riwayat_keranjang')->where(['id_users'=>$id_users], [DATEDIFF(CURDATE(), 'tgl_perubahan') > $lama])->delete();
+        $time = Carbon::createFromFormat('Y-m-d H:i:s', $detail_pesanan->date_time);
+        $coba = $time->diffInDays($time->copy()->addDay());
+        $waktu = Carbon::parse($time)->subDays(0)->diffForHumans();
+
+        if($waktu>="1 hari yang lalu"){
+            dd('hapus');
+        } else{
+            dd('ga bisa apus');
+        }
+
+
+        $status="Pesanan Diterima";
+        Detail_Pesanan::where(['id'=>$id_users])->update(['status'=>$status]);
+
+        //return redirect()->action('PesananController@orderReview');
+        return redirect(route('pesanan_saya'));
+    }
